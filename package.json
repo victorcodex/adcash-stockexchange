@@ -1,0 +1,26 @@
+{
+  "name": "stockexchange",
+  "version": "1.0.0",
+  "description": "A Stock Exchange API to select the best bids",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha"
+  },
+  "keywords": [
+    "stock",
+    "exchange",
+    "api"
+  ],
+  "author": "Victor",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.3",
+    "mysql": "^2.15.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.0.5",
+    "request": "^2.85.0"
+  }
+}
