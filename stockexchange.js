@@ -77,6 +77,9 @@ var stockexchange = {
 			.then(function(result){
 				return shortList(result, basebid);
 			})
+			.then(function(data){
+				return updateBudget(data.companyid, data.newBudget);
+			})
 			.then(function(companyID){
 				resolve(companyID);
 			})
@@ -101,10 +104,15 @@ function getIDs( companyIDs, arr ){
 }
 
 function baseTargeting( country, category ){
+	country = "%" + country + "%";
+	category = "%" + category + "%";
 	return new Promise(function(resolve, reject){
-		connection.query('SELECT CompanyID from stocks where Countries LIKE "%'+ country +'%" AND Category LIKE "%'+ category +'%"', 
+		var query = "SELECT CompanyID from stocks where Countries LIKE "+ connection.escape(country) +" AND Category LIKE " + connection.escape(category);
+
+		connection.query(query, 
 		function(err, results, fields){
 			if(err){ 
+				console.log(err);
 				log("Base Targeting:", []); 
 				reject(new Error("No Companies Passed from Targeting"));  
 			}
@@ -165,7 +173,8 @@ function shortList(result, basebid){
 		if(result.length === 1){
 			cp = result[0];
 			log("Winner = " + result[0].CompanyID);
-			resolve(result[0].CompanyID);
+			// resolve after computing the new budget for selected company
+			//resolve(result[0].CompanyID);
 		}else{
 			high_bid = 0;
 			cid = "";
@@ -178,7 +187,7 @@ function shortList(result, basebid){
 				}
 			}
 			log("Winner = " + cid);
-			resolve( cid );
+			//resolve( cid );
 		}
 		
 		var budget = cp.Budget; // in $
@@ -186,12 +195,21 @@ function shortList(result, basebid){
 		var bidInDollars = bid / 100;
 		var newBudget = budget - bidInDollars;
 		
-		connection.query("UPDATE stocks set Budget = " + newBudget + "WHERE companyID = '" + cp.CompanyID + "'",
+		resolve({companyid: cp.CompanyID, newBudget: newBudget});
+		
+		
+	});
+}
+
+function updateBudget(companyId, newBudget){
+	return new Promise(function(resolve, reject){
+		connection.query("UPDATE stocks set Budget = " + newBudget + "WHERE companyID = '" + companyId + "'",
 		function(err, result, fields){
-			
+			if(err){ reject(new Error("Error Updating Bid in the Database")); }
+			else{
+				resolve(companyId);
+			}
 		});
-		
-		
 	});
 }
 

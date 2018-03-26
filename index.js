@@ -4,6 +4,14 @@ const app = express()
 const http = require('http');
 
 app.get('/:company/:department/:bid', (req, res) => {
+	if(req.params.company == "" || req.params.department == "" || req.params.bid == ""){
+		res.send("Empty parameter set. Provide Company, Department and Bid");
+		return;
+	}
+	if(Number.isNaN( Number.parseInt(req.params.bid) )){
+		res.send('Error. Bid set is not a number');
+		return;
+	}
 	stockexchange.getBid(req.params.company, req.params.department, req.params.bid).then(function(companyID){
 		res.send(companyID);
 	})
